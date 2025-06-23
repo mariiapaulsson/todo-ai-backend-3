@@ -6,8 +6,7 @@ from openai import OpenAI
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "*"}})
 
-
-# Initiera OpenAI-klient med API-nyckel från Render-miljö
+# Initiera OpenAI-klient
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
@@ -18,12 +17,23 @@ def index():
 def ask():
     data = request.get_json()
 
-    if not all(k in data for k in ("query", "target_group", "location", "date")):
+    # Validera fält
+    if not all(k in data for k in ("query", "target_group", "location", "dates")):
         return jsonify({"error": "Saknar ett eller flera fält"}), 400
 
+    query = data["query"]
+    target_group = data["target_group"]
+    location = data["location"]
+    dates = data["dates"]
+    free_only = data.get("free", False)
+
+    # Bygg prompt med flera datum
+    date_str = ", ".join(dates)
+    free_text = " Endast gratis aktiviteter." if free_only else ""
+
     prompt = (
-        f"Vad händer i {data['location']} för målgruppen {data['target_group']} "
-        f"den {data['date']}? Aktivitetssökning: {data['query']}."
+        f"Vad händer i {location} för målgruppen {target_group} "
+        f"på följande datum: {date_str}? Aktivitetssökning: {query}.{free_text}"
     )
 
     try:
