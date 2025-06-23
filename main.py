@@ -51,3 +51,33 @@ def ask():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=10000)
+
+@app.route("/ask-chat", methods=["POST"])
+def ask_chat():
+    data = request.get_json()
+
+    if not data or "message" not in data:
+        return jsonify({"error": "Meddelande saknas"}), 400
+
+    prompt = data["message"]
+
+    try:
+        response = client.chat.completions.create(
+            model="gpt-3.5-turbo",
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Du är en glad, rolig och kreativ AI som hjälper människor att hitta på saker att göra "
+                        "i sin stad eller närområde. Svara alltid med 3–5 konkreta aktiviteter i punktform. "
+                        "Skriv gärna med en lättsam ton, kanske med emojis, men var ändå tydlig. "
+                        "Om frågan är vag, gissa vad personen kan mena och föreslå saker ändå."
+                    )
+                },
+                {"role": "user", "content": prompt}
+            ]
+        )
+        answer = response.choices[0].message.content.strip()
+        return jsonify({"response": answer})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
