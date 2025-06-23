@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: todo-ai-backend
+    env: python
+    buildCommand: ""
+    startCommand: gunicorn main:app
+    plan: free
