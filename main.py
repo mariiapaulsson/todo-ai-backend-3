@@ -66,13 +66,14 @@ def ask_chat():
             model="gpt-3.5-turbo",
             messages=[
                 {
-                    "role": "system",
+                "role": "system",
                     "content": (
-                        "Du är en glad, rolig och kreativ AI som hjälper människor att hitta på saker att göra "
-                        "i sin stad eller närområde. Svara alltid med 3–5 konkreta aktiviteter i punktform. "
-                        "Skriv gärna med en lättsam ton, kanske med emojis, men var ändå tydlig. "
-                        "Om frågan är vag, gissa vad personen kan mena och föreslå saker ändå."
-                    )
+                         "Du är en lokal aktivitetsguide. När någon frågar vad man kan göra i en viss stad, "
+                         "ger du 3–5 konkreta förslag på verkliga aktiviteter, platser, evenemang eller restauranger "
+                         "som finns (eller rimligen kan finnas) i just den orten. "
+                         "Var tydlig, skriv i punktform. Undvik allmänna tips – ge hellre namn på platser, arenor, evenemang eller stadsdelar. "
+                         "Om datum anges, prioritera aktuella händelser. Var gärna kortfattad men hjälpsam."
+)
                 },
                 {"role": "user", "content": prompt}
             ]
