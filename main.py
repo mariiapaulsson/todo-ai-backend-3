@@ -1,37 +1,45 @@
-from flask import Flask, request, jsonify
-import openai
 import os
+from flask import Flask, request, jsonify
+from openai import OpenAI
+from dotenv import load_dotenv
 
+# Ladda miljövariabler från .env om du kör lokalt
+load_dotenv()
+
+# Initiera Flask och OpenAI-klient
 app = Flask(__name__)
-
-# Ladda API-nyckeln från miljövariabel
-openai.api_key = os.getenv("OPENAI_API_KEY")
-print("API-nyckel laddad:", openai.api_key)
-
+client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 @app.route("/")
-def home():
+def index():
     return "API är live!"
 
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
-    query = data.get("query", "")
-    target_group = data.get("target_group", "")
-    location = data.get("location", "")
-    date = data.get("date", "")
 
-    prompt = f"Ge förslag på aktiviteter för målgruppen {target_group} i {location} den {date}, relaterade till '{query}'."
+    # Kontrollera att alla fält finns
+    if not all(k in data for k in ("query", "target_group", "location", "date")):
+        return jsonify({"error": "Saknar ett eller flera fält"}), 400
+
+    # Skapa prompt till ChatGPT
+    prompt = (
+        f"Vad händer i {data['location']} för målgruppen {data['target_group']} "
+        f"den {data['date']}? Aktivitetssökning: {data['query']}."
+    )
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[{"role": "user", "content": prompt}]
+            messages=[
+                {"role": "system", "content": "Du är en hjälpsam AI som ger tips på evenemang."},
+                {"role": "user", "content": prompt}
+            ]
         )
-        answer = response.choices[0].message["content"].strip()
-        return jsonify({"answer": answer})
+        answer = response.choices[0].message.content.strip()
+        return jsonify({"response": answer})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=10000)
