@@ -56,25 +56,18 @@ if __name__ == "__main__":
 def ask_chat():
     data = request.get_json()
 
-    if not data or "message" not in data:
-        return jsonify({"error": "Meddelande saknas"}), 400
+    if not data or "messages" not in data:
+        return jsonify({"error": "Konversationsdata saknas"}), 400
 
-    prompt = data["message"]
+    messages = data["messages"]
 
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=[
-                {
-                "role": "system",
-                    "content": (
-                         "Du är en hjälpsam AI som föreslår lokala aktiviteter och evenemang."
-)
-                },
-                {"role": "user", "content": prompt}
-            ]
+            messages=messages
         )
         answer = response.choices[0].message.content.strip()
         return jsonify({"response": answer})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
