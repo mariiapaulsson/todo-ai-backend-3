@@ -67,7 +67,8 @@ def ask_chat():
             messages=[
                 {
                 "role": "system",
-                 {"role": "system", "content": "Du är en hjälpsam AI som föreslår lokala aktiviteter och evenemang."},
+                    "content": (
+                         "Du är en hjälpsam AI som föreslår lokala aktiviteter och evenemang."
 )
                 },
                 {"role": "user", "content": prompt}
